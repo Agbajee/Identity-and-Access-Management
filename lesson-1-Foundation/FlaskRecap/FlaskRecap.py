@@ -8,12 +8,23 @@ import json
 from jose import jwt
 from urllib.request import urlopen
 
-AUTH0_DOMAIN = 'devagbaje.us.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'image'
-AUTH_LINK = 'https://devagbaje.us.auth0.com/authorize?audience=image&response_type=token&client_id=zHXITxdbfKqY1vYaaZSzAPqGxLMJVn4j&redirect_uri=https://127.0.0.1:8080/login-result'
+def get_token_auth_header():
+# check if authorization is not in request
+    if 'Authorization' not in request.headers:
+        abort(401)
+# get the token   
+    auth_header = request.headers['Authorization']
+    header_parts = auth_header.split(' ')
+# check if token is valid
+    if len(header_parts) != 2:
+        abort(401)
+    elif header_parts[0].lower() != 'bearer':
+        abort(401) 
+
+    return header_parts[1]
 
 app = Flask(__name__)
+
 
 greetings = {
             'en': 'hello', 
@@ -37,13 +48,9 @@ def hello():
 
 @app.route('/header', methods=['GET'])
 def headers():
-    auth_header = request.headers['Authorization']
-
-    # get the token
-    header_parts = auth_header.split(' ')[1]
-    print(header_parts)
-
-    return header_parts
+    jwt = get_token_auth_header()
+    print(jwt)
+    return "not implemented"
 
 @app.route('/greeting', methods=['GET'])
 def greeting_all():
